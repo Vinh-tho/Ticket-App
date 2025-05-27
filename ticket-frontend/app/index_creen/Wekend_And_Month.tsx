@@ -21,7 +21,13 @@ interface Event {
   eventDetails: {
     detailImageUrl: string;
     startTime: string;
+  }[];
+  tickets: {
+    id: number;
+    type: string;
     price: number;
+    quantity: number;
+    status: string;
   }[];
 }
 
@@ -64,18 +70,45 @@ export default function Wekend_And_Month() {
 
   const getFilteredEvents = () => {
     const now = new Date();
+    
+    // Lấy ngày đầu tuần (thứ 2) và cuối tuần (chủ nhật)
     const startOfWeek = new Date(now);
     startOfWeek.setHours(0, 0, 0, 0);
-    startOfWeek.setDate(now.getDate() - now.getDay()); // Chủ nhật đầu tuần
+    // Nếu hôm nay là chủ nhật (0), lấy từ thứ 2 tuần trước
+    const currentDay = now.getDay();
+    const diff = currentDay === 0 ? -6 : 1 - currentDay; // -6 nếu là chủ nhật, không thì lùi về thứ 2
+    startOfWeek.setDate(now.getDate() + diff);
+
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // Thứ 7 cuối tuần
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    // Lấy ngày đầu tháng và cuối tháng
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    startOfMonth.setHours(0, 0, 0, 0);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999);
+
+    // Debug thông tin
+    console.log('Current time:', now.toLocaleString('vi-VN'));
+    console.log('Week range:', startOfWeek.toLocaleString('vi-VN'), 'to', endOfWeek.toLocaleString('vi-VN'));
+    console.log('Month range:', startOfMonth.toLocaleString('vi-VN'), 'to', endOfMonth.toLocaleString('vi-VN'));
+
     return events.filter(event => {
-      const eventDate = new Date(event.eventDetails?.[0]?.startTime || '');
+      // Lấy thời gian sự kiện từ eventDetails
+      const eventStartTime = event.eventDetails?.[0]?.startTime;
+      if (!eventStartTime) return false;
+
+      const eventDate = new Date(eventStartTime);
+      
+      // Debug thông tin sự kiện
+      console.log('Event:', event.eventName, 'Date:', eventDate.toLocaleString('vi-VN'));
+
       if (selectedTab === "weekend") {
+        // Sự kiện trong tuần này
         return eventDate >= startOfWeek && eventDate <= endOfWeek;
       } else {
+        // Sự kiện trong tháng này
         return eventDate >= startOfMonth && eventDate <= endOfMonth;
       }
     });
@@ -125,9 +158,29 @@ export default function Wekend_And_Month() {
                 year: "numeric"
               })
             : "Chưa có ngày";
-          const formattedPrice = eventDetail?.price 
-            ? `${eventDetail.price.toLocaleString('vi-VN')} đ`
+
+          // Tìm giá vé thấp nhất từ mảng tickets
+          let minPrice = Number.MAX_VALUE;
+          
+          // Duyệt qua tất cả các vé để tìm giá thấp nhất
+          if (item.tickets && item.tickets.length > 0) {
+            item.tickets.forEach(ticket => {
+              // Chỉ xét các vé còn available và có giá > 0
+              if (ticket.status === 'available' && ticket.price > 0 && ticket.price < minPrice) {
+                minPrice = parseFloat(ticket.price.toString());
+              }
+            });
+          }
+
+          // Nếu không tìm thấy vé nào có giá > 0, đặt minPrice = 0
+          if (minPrice === Number.MAX_VALUE) {
+            minPrice = 0;
+          }
+
+          const formattedPrice = minPrice > 0
+            ? `${minPrice.toLocaleString('vi-VN')}đ`
             : "Miễn phí";
+
           return (
             <TouchableOpacity 
               style={styles.recommendedEventContainer}

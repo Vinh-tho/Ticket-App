@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { IconSymbol } from "../ui/IconSymbol";
+import { MaterialIcons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -51,7 +51,7 @@ export default function SupportList() {
           style={styles.item}
           onPress={item.label === "Đăng xuất" ? handleLogout : undefined}
         >
-          <IconSymbol name={item.icon} size={18} color="gray" />
+          <MaterialIcons name={item.icon} size={24} color="#666" />
           <Text style={styles.text}>{item.label}</Text>
         </TouchableOpacity>
       ))}
@@ -66,6 +66,13 @@ const styles = StyleSheet.create({
     padding: 16,
     bottom: -34,
     elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   header: {
     fontSize: 16,
@@ -81,7 +88,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 14,
-    color: "black",
-    marginLeft: 8,
+    color: "#333",
+    marginLeft: 12,
+    flex: 1,
   },
 });

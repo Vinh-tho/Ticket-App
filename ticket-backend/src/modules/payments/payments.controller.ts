@@ -28,34 +28,34 @@ export class PaymentsController {
   @Post('vnpay/create')
   async createPayment(@Body() body: VNPayCreateDTO, @Req() req: Request) {
     try {
+      // Log dữ liệu nhận từ FE
+      console.log('Body nhận từ FE:', body);
       const { orderId, amount, bankCode } = body;
-      if (!orderId || !amount) {
+      // Ép kiểu amount về number để tránh lỗi kiểu dữ liệu
+      const safeAmount = Number(amount);
+      if (!orderId || !safeAmount) {
         throw new BadRequestException('orderId và amount là bắt buộc');
       }
-
       const ipAddr =
         req.headers['x-forwarded-for']?.toString() ||
         req.connection.remoteAddress ||
         req.socket.remoteAddress ||
         '127.0.0.1';
-
       this.logger.log(
-        `Creating payment URL for order ${orderId} with amount ${amount}`,
+        `Creating payment URL for order ${orderId} with amount ${safeAmount}`,
       );
-
       const url = await this.paymentsService.createPaymentUrl(
         orderId,
-        amount,
+        safeAmount,
         ipAddr,
         bankCode, // thêm dòng này
       );
-
       return {
         success: true,
         paymentUrl: url,
         orderInfo: {
           orderId,
-          amount,
+          amount: safeAmount,
           ipAddr,
           bankCode: bankCode || 'Not specified',
         },

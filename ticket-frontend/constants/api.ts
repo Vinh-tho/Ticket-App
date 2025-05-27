@@ -12,4 +12,12 @@ export const ENDPOINTS = {
   SEATS: `${API_URL}/seats`,
   EVENTS: `${API_URL}/events`,
   EVENT_DETAIL: `${API_URL}/events-detail`,
+  SEAT_STATUS: `${API_URL}/seat-status`,
+};
+
+export const API = {
+  ORGANIZER: {
+    GET_ALL: `${BASE_URL}/organizers`,
+    GET_BY_ID: (id: number) => `${BASE_URL}/organizers/${id}`,
+  },
 }; 

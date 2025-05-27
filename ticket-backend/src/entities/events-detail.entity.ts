@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany, AfterLoad } from 'typeorm';
 import { Event } from './Events';
 import { SeatStatus } from './seat-status.entity';
 
@@ -7,12 +7,17 @@ export class EventDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Event, (event) => event.eventDetails)
+  @Column()
+  eventId: number;
+
+  @ManyToOne(() => Event, (event) => event.eventDetails, {
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'eventId' })
   event: Event;
 
   @Column({ nullable: true })
-  detailImageUrl: string; // đổi từ image_detail sang detailImageUrl
+  detailImageUrl: string;
 
   @Column()
   startTime: Date;
@@ -29,11 +34,18 @@ export class EventDetail {
   @Column({ default: 'active' })
   status: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 0 })
   capacity: number;
 
   @OneToMany(() => SeatStatus, (seatStatus) => seatStatus.eventDetail, {
     cascade: true,
   })
   seatStatuses: SeatStatus[];
+
+  @AfterLoad()
+  async calculateCapacity() {
+    if (this.event?.tickets) {
+      this.capacity = this.event.tickets.reduce((sum, ticket) => sum + ticket.quantity, 0);
+    }
+  }
 }

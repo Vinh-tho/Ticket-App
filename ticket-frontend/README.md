@@ -1,50 +1,147 @@
-# Welcome to your Expo app 👋
+# 🎫 Ticket App - Ứng dụng Đặt vé Sự kiện
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 📝 Giới thiệu
 
-## Get started
+Ticket App là một ứng dụng di động hiện đại được phát triển bằng Expo/React Native, cho phép người dùng dễ dàng tìm kiếm, đặt vé và quản lý các sự kiện. Ứng dụng cung cấp trải nghiệm người dùng mượt mà và đầy đủ tính năng từ việc duyệt sự kiện đến thanh toán vé.
 
-1. Install dependencies
+### Các tính năng chính:
 
-   ```bash
-   npm install
-   ```
+- 🔐 Xác thực người dùng (Đăng nhập/Đăng ký/Quên mật khẩu)
+- 🎭 Tìm kiếm và lọc sự kiện
+- 📅 Xem chi tiết sự kiện và lịch trình
+- 💺 Chọn chỗ ngồi tương tác
+- 💳 Thanh toán trực tuyến an toàn
+- 🎟️ Quản lý vé đã mua
+- 👤 Quản lý tài khoản cá nhân
+- 📱 Giao diện responsive trên cả iOS và Android
 
-2. Start the app
+## 🛠️ Công nghệ sử dụng
 
-   ```bash
-   npx expo start
-   ```
+### Frontend
+- **Expo/React Native**: Lựa chọn để phát triển ứng dụng đa nền tảng với hiệu suất cao
+- **TypeScript**: Đảm bảo type-safety và dễ bảo trì code
+- **Expo Router**: Routing mạnh mẽ với file-based routing
+- **Expo Notifications**: Tích hợp thông báo đẩy
+- **React Navigation**: Điều hướng mượt mà trong ứng dụng
 
-In the output, you'll find options to open the app in a
+### Lý do lựa chọn công nghệ
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+1. **Expo/React Native**:
+   - Phát triển nhanh cho cả iOS và Android
+   - Cộng đồng lớn và nhiều thư viện hỗ trợ
+   - Hot Reload giúp tăng tốc độ phát triển
+   - Dễ dàng triển khai và cập nhật OTA
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+2. **TypeScript**:
+   - Giảm lỗi runtime
+   - Code dễ đọc và bảo trì
+   - Hỗ trợ IDE tốt hơn
 
-## Get a fresh project
+3. **Expo Router & Navigation**:
+   - Routing dựa trên file system trực quan
+   - Deep linking tích hợp sẵn
+   - Hiệu suất tốt và dễ quản lý
 
-When you're ready, run:
+## 🚀 Hướng dẫn cài đặt
 
+1. Cài đặt dependencies:
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Khởi động ứng dụng:
+```bash
+npx expo start
+```
 
-## Learn more
+3. Chạy ứng dụng trên:
+- 📱 Thiết bị thật qua Expo Go
+- 🤖 Máy ảo Android
+- 🍎 Máy ảo iOS
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📱 Kiểm thử Push Notifications
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Sử dụng thiết bị thật (không hỗ trợ trên máy ảo)
+2. Đăng nhập tài khoản Expo
+3. Gửi thông báo test qua API:
 
-## Join the community
+```bash
+curl -X POST http://your-api-url/notifications \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"userId": 1, "message": "Thông báo test"}'
+```
 
-Join our community of developers creating universal apps.
+## 🗂️ Cấu trúc thư mục
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+ticket-frontend/
+├── app/                    # Chứa các màn hình chính, routing và layout
+│   ├── RegisterScreen.tsx
+│   ├── LoginScreen.tsx
+│   ├── ForgotPasswordScreen.tsx
+│   ├── SearchScreen.tsx
+│   ├── SplashScreen.tsx
+│   ├── _layout.tsx
+│   ├── index.tsx
+│   ├── +not-found.tsx
+│   ├── (tabs)/             # Các tab điều hướng chính
+│   ├── seat_screen/        # Màn hình chọn ghế
+│   ├── payment_screen/     # Màn hình thanh toán
+│   ├── Ticket/             # Quản lý vé
+│   ├── account_screens/    # Quản lý tài khoản
+│   ├── EventsDetailScreen/ # Chi tiết sự kiện
+│   ├── events_detail/      # Các màn hình chi tiết sự kiện
+│   ├── Login_Screen/       # Các màn hình liên quan đăng nhập
+│   └── index_creen/        # Trang chủ hoặc các màn hình tổng hợp
+├── components/             # Các component dùng lại trong nhiều màn hình
+│   ├── ui/                 # Các UI component nhỏ
+│   ├── SearchScreen/
+│   ├── ProfileScreen/
+│   ├── AccountScreen/
+│   ├── Collapsible.tsx
+│   ├── ExternalLink.tsx
+│   ├── HapticTab.tsx
+│   ├── HelloWave.tsx
+│   ├── ParallaxScrollView.tsx
+│   ├── ThemedText.tsx
+│   └── ThemedView.tsx
+├── services/               # Các hàm/service gọi API backend
+│   └── eventService.ts
+├── constants/              # Các hằng số, config, màu sắc, API endpoint
+│   ├── config.ts
+│   ├── api.ts
+│   └── Colors.ts
+├── hooks/                  # Custom React hooks
+│   ├── useNotifications.ts
+│   ├── useColorScheme.ts
+│   ├── useColorScheme.web.ts
+│   └── useThemeColor.ts
+├── types/                  # Định nghĩa các kiểu dữ liệu dùng chung
+│   └── react-native-zoom-view.d.ts
+├── assets/                 # Hình ảnh, icon, font, media
+├── scripts/                # Các script hỗ trợ phát triển
+├── .expo/                  # Thư mục cấu hình Expo
+├── .vscode/                # Cấu hình cho VSCode
+├── package.json
+├── app.json
+├── tsconfig.json
+├── README.md
+└── ...
+```
+
+**Giải thích nhanh:**
+- `app/`: Chứa các màn hình chính, routing, layout và các nhóm màn hình theo nghiệp vụ.
+- `components/`: Các thành phần UI dùng lại nhiều nơi.
+- `services/`: Các hàm/service gọi API backend.
+- `constants/`: Các hằng số, config, màu sắc, endpoint.
+- `hooks/`: Custom React hooks.
+- `types/`: Định nghĩa kiểu dữ liệu dùng chung.
+- `assets/`: Tài nguyên tĩnh (ảnh, icon, font).
+- `scripts/`, `.expo/`, `.vscode/`: Hỗ trợ phát triển và cấu hình.
+
+## 📘 Tài liệu tham khảo
+
+- [Tài liệu Expo](https://docs.expo.dev/)
+- [React Native Documentation](https://reactnative.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)

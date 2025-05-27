@@ -2,16 +2,34 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
-interface FixedButtonsProps {
-  selectedSeat: {
-    blockIdx: number;
-    rowIdx: number;
-    seatIdx: number;
-  } | null;
-  setShowTicketInfo: (show: boolean) => void;
+interface ApiSeat {
+  id: number | undefined;
+  seatNumber: string;
+  status: "AVAILABLE" | "SOLD" | "HELD";
+  zone: string;
+  price: number;
+  row: string;
+  seatInRow: number;
 }
 
-export default function FixedButtons({ selectedSeat, setShowTicketInfo }: FixedButtonsProps) {
+interface SelectedSeatData {
+  blockIdx: number;
+  rowIdx: number;
+  seatIdx: number;
+  seatId?: number;
+  seatDetails: ApiSeat;
+  eventId?: number;
+  ticketId?: number;
+  eventDetailId?: number;
+}
+
+interface FixedButtonsProps {
+  selectedSeats: SelectedSeatData[];
+  setShowTicketInfo: (show: boolean) => void;
+  setSelectedSeats: (seats: SelectedSeatData[]) => void;
+}
+
+export default function FixedButtons({ selectedSeats, setShowTicketInfo, setSelectedSeats }: FixedButtonsProps) {
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const handlePress = () => {
@@ -31,23 +49,44 @@ export default function FixedButtons({ selectedSeat, setShowTicketInfo }: FixedB
     setShowTicketInfo(true);
   };
 
+  const getTotalPrice = () => {
+    return selectedSeats.reduce((total, seat) => {
+      const price = Number(seat.seatDetails?.price);
+      return total + (isNaN(price) ? 0 : price);
+    }, 0);
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(price);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
-        {selectedSeat ? (
+        {selectedSeats.length > 0 ? (
           <>
             <View style={styles.seatInfo}>
               <Ionicons name="ticket" size={24} color="#22c55e" />
-              <Text style={styles.seatText}>
-                Ghế {String.fromCharCode(65 + selectedSeat.rowIdx)}
-                {selectedSeat.seatIdx + 1}
-              </Text>
+              <View>
+                <Text style={styles.seatText}>
+                  {selectedSeats.length} ghế đã chọn
+                </Text>
+                <Text style={styles.priceText}>
+                  {formatPrice(getTotalPrice())}
+                </Text>
+              </View>
             </View>
             <TouchableOpacity
               style={styles.changeButton}
-              onPress={() => selectedSeat && setShowTicketInfo(true)}
+              onPress={() => {
+                setSelectedSeats([]);
+                setShowTicketInfo(false);
+              }}
             >
-              <Text style={styles.changeButtonText}>Thay đổi</Text>
+              <Text style={styles.changeButtonText}>Chọn lại</Text>
             </TouchableOpacity>
           </>
         ) : (
@@ -59,10 +98,10 @@ export default function FixedButtons({ selectedSeat, setShowTicketInfo }: FixedB
         <TouchableOpacity
           style={[
             styles.continueButton,
-            !selectedSeat && styles.continueButtonDisabled,
+            selectedSeats.length === 0 && styles.continueButtonDisabled,
           ]}
           onPress={handlePress}
-          disabled={!selectedSeat}
+          disabled={selectedSeats.length === 0}
         >
           <Text style={styles.continueButtonText}>Tiếp tục</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
@@ -105,6 +144,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    marginLeft: 8,
+  },
+  priceText: {
+    color: "#22c55e",
+    fontSize: 14,
     marginLeft: 8,
   },
   changeButton: {

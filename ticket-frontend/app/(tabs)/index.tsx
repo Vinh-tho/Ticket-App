@@ -1,3 +1,23 @@
+/**
+ * HOME SCREEN
+ * 
+ * Những điều cần học:
+ * 1. React Native Components:
+ *    - FlatList: Hiệu suất cao khi render danh sách
+ *    - ScrollView vs FlatList
+ *    - View và StyleSheet
+ * 
+ * 2. Layout và Styling:
+ *    - Flexbox trong React Native
+ *    - Dimensions API
+ *    - Style inheritance
+ * 
+ * 3. Component Organization:
+ *    - Chia nhỏ components
+ *    - Component composition
+ *    - Props passing
+ */
+
 import {
   ScrollView,
   StyleSheet,
@@ -14,7 +34,7 @@ import Wekend_And_Month from "../index_creen/Wekend_And_Month";
 import Header from "../index_creen/Header";
 import InterestingDestinations from "../index_creen/InterestingDestinations";
 
-
+// Mảng các components con để render trong FlatList
 const COMPONENTS = [
   { id: "1", component: <Header /> },
   { id: "2", component: <Events /> },
@@ -29,15 +49,16 @@ export default function HomeScreen() {
   return (
     <FlatList
       style={styles.container}
-      contentContainerStyle={{ paddingBottom: 20 }} // Đảm bảo nội dung không bị cắt
+      contentContainerStyle={{ paddingBottom: 20 }} // Padding cho container
       showsVerticalScrollIndicator={false} // Ẩn thanh cuộn
-      data={COMPONENTS}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <View>{item.component}</View>}
+      data={COMPONENTS} // Data source cho FlatList
+      keyExtractor={(item) => item.id} // Unique key cho mỗi item
+      renderItem={({ item }) => <View>{item.component}</View>} // Render từng component
     />
   );
 }
 
+// Styles sử dụng StyleSheet.create để tối ưu hiệu suất
 const styles = StyleSheet.create({
   container: {
     flex: 1,

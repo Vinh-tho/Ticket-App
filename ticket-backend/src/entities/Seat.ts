@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'ty
 import { Ticket } from './ticket.entity';
 import { Event } from './Events';
 import { SeatStatus } from './seat-status.entity';
+import { OrderDetail } from './order-detail.entity';
 
 @Entity('seat')
 export class Seat {
@@ -27,4 +28,7 @@ export class Seat {
     cascade: true,
   })
   seatStatuses: SeatStatus[];
+
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.seat)
+  orderDetails: OrderDetail[];
 }

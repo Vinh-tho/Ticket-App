@@ -7,6 +7,10 @@ export class UpdateUserDto {
   name?: string;
 
   @IsOptional()
+  @IsEmail({}, { message: 'Email không hợp lệ' })
+  email?: string;
+
+  @IsOptional()
   @IsString()
   phone?: string;
 

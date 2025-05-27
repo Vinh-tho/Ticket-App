@@ -9,24 +9,43 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { useRouter } from "expo-router"; // ✅ Thêm dòng này
+import { useRouter } from "expo-router";
 import { BASE_URL } from "@/constants/config";
 
 const { width, height } = Dimensions.get("window");
 
+interface Event {
+  id: number;
+  eventName: string;
+  mainImageUrl: string;
+  status: string;
+  eventDetails: Array<{
+    id: number;
+    startTime: string;
+    endTime: string;
+    location: string;
+  }>;
+}
+
 export default function Events() {
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter(); // ✅ Dùng router để điều hướng
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`${BASE_URL}/events`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch events');
+        }
         const data = await response.json();
-        setEvents(data);
+        setEvents(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching events:", error);
+        setError(error instanceof Error ? error.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
@@ -35,9 +54,28 @@ export default function Events() {
     fetchEvents();
   }, []);
 
-
   if (loading) {
-    return <ActivityIndicator size="large" color="#fff" style={{ marginTop: 50 }} />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Không thể tải dữ liệu sự kiện</Text>
+      </View>
+    );
+  }
+
+  if (!events || events.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Không có sự kiện nào</Text>
+      </View>
+    );
   }
 
   return (
@@ -49,10 +87,15 @@ export default function Events() {
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => router.push(`/events_detail/${item.id}`)}>
-            <View style={styles.eventContainer}>
-              <Image source={{ uri: item.mainImageUrl }} style={styles.eventImage} />
-            </View>
+          <TouchableOpacity 
+            onPress={() => router.push(`/events_detail/${item.id}`)}
+            style={styles.eventContainer}
+          >
+            <Image 
+              source={{ uri: item.mainImageUrl }} 
+              style={styles.eventImage}
+              defaultSource={require('@/assets/images/icon.png')}
+            />
           </TouchableOpacity>
         )}
       />
@@ -61,9 +104,33 @@ export default function Events() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  emptyContainer: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: 'white',
+    fontSize: 16,
+  },
   eventContainer: {
     marginLeft: 20,
     marginTop: 10,
+    width: width * 0.48,
   },
   sectionTitle: {
     fontSize: 18,
@@ -78,6 +145,5 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     borderRadius: 8,
     marginHorizontal: -5,
-    marginBottom: 4,
   },
 });

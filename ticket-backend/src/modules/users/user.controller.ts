@@ -23,4 +23,10 @@ export class UserController {
   updateProfile(@Request() req, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.updateUserProfile(req.user.userId, updateUserDto);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('buyers-of-my-events')
+  getBuyersOfMyEvents(@Request() req) {
+    return this.userService.getBuyersOfMyEvents(req.user.userId);
+  }
 }

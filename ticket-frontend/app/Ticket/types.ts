@@ -1,15 +1,36 @@
-export interface TicketOrder {
+export interface Ticket {
   id: string;
   eventName: string;
   type: string;
   seat: string;
-  orderDate: string;
-  status: string;
+  price: number;
+  quantity: number;
   eventDate?: string;
   location?: string;
-  price?: number;
-  quantity?: number;
-  [key: string]: any;
+  eventId?: number;
+  eventDetailId?: number;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  orderDate: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  totalAmount: number;
+  tickets: Ticket[];
+  paymentMethod?: string;
+  paymentStatus?: 'pending' | 'paid' | 'failed';
+}
+
+export interface TicketOrder extends Order {
+  // For backward compatibility
+  eventName: string;
+  type: string;
+  seat: string;
+  price: number;
+  quantity: number;
+  eventDate?: string;
+  location?: string;
 }
 
 export interface TicketItemProps {

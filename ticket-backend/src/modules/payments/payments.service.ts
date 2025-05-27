@@ -5,6 +5,9 @@ import { Order } from '../../entities/order.entity';
 import { Payment } from '../../entities/Payment';
 import { OrderStatus } from '../../common/enums/order-status.enum';
 import { OrdersService } from '../order/orders.service';
+import { MailService } from '../mail/mail.service';
+import { PaymentInfo } from '../mail/interfaces';
+import { NotificationsService } from '../notifications/notifications.service';
 import {
   createVNPayUrl,
   generateHMAC,
@@ -21,6 +24,8 @@ export class PaymentsService {
     @InjectRepository(Payment)
     private paymentRepo: Repository<Payment>,
     private readonly ordersService: OrdersService,
+    private readonly mailService: MailService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async createPaymentUrl(
@@ -30,19 +35,21 @@ export class PaymentsService {
     bankCode?: string,
   ): Promise<string> {
     try {
+      this.logger.log(`[DEBUG] orderId: ${orderId} (${typeof orderId}), amount: ${amount} (${typeof amount})`);
+      if (!orderId || typeof orderId !== 'number' || orderId <= 0) {
+        throw new BadRequestException('orderId không hợp lệ');
+      }
+      if (!amount || typeof amount !== 'number' || amount <= 0) {
+        throw new BadRequestException('amount không hợp lệ');
+      }
       const order = await this.orderRepo.findOne({ where: { id: orderId } });
       if (!order) {
         throw new BadRequestException('Đơn hàng không tồn tại');
       }
-
       if (order.status === OrderStatus.PAID) {
         throw new BadRequestException('Đơn hàng đã được thanh toán');
       }
-
-      // Cập nhật trạng thái đơn hàng sang pending
       await this.orderRepo.update(orderId, { status: OrderStatus.PENDING });
-
-      // Tạo bản ghi Payment trạng thái pending nếu chưa có
       let payment = await this.paymentRepo.findOne({
         where: { order: { id: orderId }, paymentStatus: 'pending' },
       });
@@ -56,14 +63,16 @@ export class PaymentsService {
         await this.paymentRepo.save(payment);
         this.logger.log('Created pending payment:', payment);
       }
-
-      return createVNPayUrl({
+      const safeAmount = Math.round(Math.abs(amount));
+      const url = createVNPayUrl({
         orderId,
-        amount: Math.round(amount), // đảm bảo là số nguyên
+        amount: safeAmount,
         ipAddr,
         orderInfo: `Thanh toan don hang #${orderId}`,
-        bankCode, // truyền bankCode nếu có
+        bankCode,
       });
+      this.logger.log(`[DEBUG] VNPay URL created: ${url}`);
+      return url;
     } catch (error) {
       this.logger.error(`Error creating payment URL: ${error.message}`);
       throw error;
@@ -83,7 +92,8 @@ export class PaymentsService {
       const isSuccess = query.vnp_ResponseCode === '00';
       const orderStatus = isSuccess ? OrderStatus.PAID : OrderStatus.FAILED;
 
-      await this.ordersService.updateOrderStatus(orderId, orderStatus);
+      // Cập nhật trạng thái đơn hàng
+      const updatedOrder = await this.ordersService.updateOrderStatus(orderId, orderStatus);
 
       // Cập nhật bản ghi Payment khi thanh toán thành công
       if (isSuccess) {
@@ -95,6 +105,70 @@ export class PaymentsService {
           payment.amount = Number(query.vnp_Amount) / 100;
           await this.paymentRepo.save(payment);
           this.logger.log('Payment updated to success:', payment);
+          
+          // Lấy thông tin đơn hàng chi tiết để gửi email
+          const order = await this.orderRepo.findOne({
+            where: { id: orderId },
+            relations: [
+              'user', 
+              'orderDetails', 
+              'orderDetails.ticket', 
+              'orderDetails.ticket.event',
+              'orderDetails.ticket.event.eventDetails',
+              'orderDetails.seat'
+            ],
+          });
+          
+          if (order) {
+            // Thêm thông tin sự kiện cho email
+            if (order.orderDetails && order.orderDetails.length > 0 && 
+                order.orderDetails[0].ticket && order.orderDetails[0].ticket.event) {
+              const event = order.orderDetails[0].ticket.event;
+              const eventDetail = event.eventDetails && event.eventDetails.length > 0 ? event.eventDetails[0] : null;
+              
+              order['eventInfo'] = {
+                name: event.eventName || 'Sự kiện',
+                location: eventDetail?.location || 'Địa điểm',
+                startTime: eventDetail?.startTime,
+                endTime: eventDetail?.endTime
+              };
+            }
+            
+            // Gửi email thông báo thanh toán thành công
+            try {
+              this.logger.log('Đang gửi email thông báo thanh toán thành công');
+              const paymentInfo: PaymentInfo = {
+                bankCode: query.vnp_BankCode,
+                transactionNo: query.vnp_TransactionNo,
+                paymentDate: new Date().toLocaleString('vi-VN'),
+                amount: payment.amount
+              };
+              
+              await this.mailService.sendPaymentConfirmationEmail(order, paymentInfo);
+              this.logger.log('Đã gửi email thông báo thanh toán thành công');
+              
+              // Thêm thông báo cho người dùng trong ứng dụng
+              if (order.user && order.user.id) {
+                try {
+                  // Tạo thông báo về vé đã mua
+                  let eventName = "Sự kiện";
+                  if (order.orderDetails && order.orderDetails.length > 0 && 
+                      order.orderDetails[0].ticket && order.orderDetails[0].ticket.event) {
+                    eventName = order.orderDetails[0].ticket.event.eventName;
+                  }
+                  
+                  const message = `Vé của bạn cho sự kiện "${eventName}" đã được xác nhận. Vui lòng kiểm tra trong mục Vé của tôi.`;
+                  await this.notificationsService.createNotification(order.user.id, message);
+                  this.logger.log(`Đã gửi thông báo xác nhận vé cho user #${order.user.id}`);
+                } catch (notifError) {
+                  this.logger.error(`Lỗi khi gửi thông báo ứng dụng: ${notifError.message}`);
+                }
+              }
+            } catch (emailError) {
+              // Chỉ ghi log lỗi nhưng không throw lỗi để không ảnh hưởng đến quy trình thanh toán
+              this.logger.error(`Lỗi khi gửi email thông báo: ${emailError.message}`);
+            }
+          }
         } else {
           this.logger.warn(
             'No pending payment found to update for order:',

@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'ty
 import { Users } from './Users';
 import { OrderDetail } from './order-detail.entity';
 import { Payment } from './Payment';
+import { Gift } from './gift.entity';
 
 @Entity('orders')
 export class Order {
@@ -31,4 +32,13 @@ export class Order {
 
   @Column({ nullable: true })
   eventDetailId: number;
+  
+  @ManyToOne(() => Gift, (gift) => gift.orders, { nullable: true })
+  gift: Gift;
+  
+  @Column({ nullable: true })
+  giftId: number;
+  
+  @Column({ type: 'enum', enum: ['Chưa nhắc', 'Đã nhắc'], default: 'Chưa nhắc' })
+  reminderSent: string;
 }

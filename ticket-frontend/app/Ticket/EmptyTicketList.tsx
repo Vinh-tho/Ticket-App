@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { EmptyTicketListProps } from './types';
 import { emptyStyles } from './styles';
 
-export const EmptyTicketList: React.FC<EmptyTicketListProps> = ({ onBrowsePress }) => {
+export default function EmptyTicketList({ onBrowsePress }: EmptyTicketListProps) {
   return (
     <View style={emptyStyles.emptyContainer}>
       <Image 
@@ -23,4 +23,4 @@ export const EmptyTicketList: React.FC<EmptyTicketListProps> = ({ onBrowsePress 
       </TouchableOpacity>
     </View>
   );
-}; 
+} 

@@ -5,10 +5,15 @@ export const getStatusColor = (status: string) => {
     case 'active':
     case 'confirmed':
     case 'đã xác nhận':
+    case 'paid':
+    case 'đã thanh toán':
       return '#21C064';
     case 'pending':
     case 'chờ xác nhận':
       return '#F7B500';
+    case 'unpaid':
+    case 'chưa thanh toán':
+      return '#FF9500';
     case 'cancelled':
     case 'đã hủy':
       return '#E74C3C';
@@ -27,10 +32,14 @@ export const formatStatus = (status: string) => {
       return 'Đã xác nhận';
     case 'pending':
       return 'Chờ xác nhận';
+    case 'unpaid':
+      return 'Chưa thanh toán';
     case 'cancelled':
       return 'Đã hủy';
     case 'used':
       return 'Đã sử dụng';
+    case 'paid':
+      return 'Đã thanh toán';
     default:
       return status;
   }
@@ -74,4 +83,8 @@ export const getSampleTickets = (): TicketOrder[] => {
       price: 350000
     }
   ];
+};
+
+export const formatCurrency = (amount: number): string => {
+  return amount.toLocaleString('vi-VN') + ' đ';
 }; 

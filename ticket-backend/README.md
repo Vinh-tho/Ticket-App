@@ -1,98 +1,132 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🎫 Ticket App Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 📝 Giới thiệu
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Backend của Ticket App được xây dựng bằng NestJS - một framework Node.js mạnh mẽ và hiện đại. Hệ thống cung cấp REST API để hỗ trợ các chức năng quản lý và đặt vé sự kiện.
 
-## Description
+## 🏗️ Kiến trúc hệ thống
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Công nghệ sử dụng
+- **NestJS**: Framework Node.js với TypeScript
+- **MySQL**: Hệ quản trị cơ sở dữ liệu
+- **HeidiSQL**: GUI Tool quản lý MySQL
+- **TypeORM**: ORM cho database
+- **Passport.js**: Xác thực và phân quyền
+- **JWT**: Token-based authentication
+- **Cloudinary**: Lưu trữ và quản lý hình ảnh
+- **Jest**: Unit testing và E2E testing
 
-## Project setup
-
-```bash
-$ npm install
+### Cấu trúc thư mục
+```
+src/
+├── config/         # Cấu hình ứng dụng
+├── entities/       # Các entity của database
+├── modules/        # Các module chức năng
+├── dto/           # Data Transfer Objects
+├── guards/        # Guards bảo vệ route
+├── middlewares/   # Middleware xử lý request
+├── passport/      # Cấu hình passport strategy
+└── common/        # Các utility và helper functions
 ```
 
-## Compile and run the project
+## ⚙️ Cài đặt và Phát triển
 
-```bash
-# development
-$ npm run start
+### Yêu cầu hệ thống
+- Node.js >= 16.x
+- MySQL >= 8.x
+- npm >= 8.x
 
-# watch mode
-$ npm run start:dev
+### Lý do lựa chọn công nghệ
 
-# production mode
-$ npm run start:prod
-```
+1. **NestJS**
+   - Framework Node.js với kiến trúc module rõ ràng, dễ mở rộng
+   - Tích hợp TypeScript mặc định giúp code an toàn và dễ bảo trì
+   - Dependency Injection pattern giúp code dễ test và tái sử dụng
+   - Hỗ trợ Microservices sẵn có
+   - Cộng đồng lớn và nhiều thư viện hỗ trợ
 
-## Run tests
+2. **MySQL & HeidiSQL**
+   - MySQL là CSDL phổ biến, miễn phí và mã nguồn mở
+   - Hiệu năng cao và ổn định cho ứng dụng web
+   - HeidiSQL cung cấp giao diện trực quan để quản lý database
+   - Dễ dàng backup, restore và quản lý dữ liệu
+   - Cộng đồng lớn và nhiều tài liệu hướng dẫn tiếng Việt
+   - Nhiều hosting hỗ trợ MySQL sẵn có
 
-```bash
-# unit tests
-$ npm run test
+3. **TypeORM**
+   - ORM phổ biến cho TypeScript
+   - Tương thích tốt với MySQL
+   - Query builder mạnh mẽ và linh hoạt
+   - Hỗ trợ migration và seeding
+   - Active Record và Data Mapper patterns
 
-# e2e tests
-$ npm run test:e2e
+4. **Passport.js & JWT**
+   - Giải pháp authentication linh hoạt và bảo mật
+   - Dễ dàng tích hợp với các provider khác nhau (Google, Facebook)
+   - JWT cho phép stateless authentication
+   - Hiệu năng tốt và dễ scale
 
-# test coverage
-$ npm run test:cov
-```
+5. **VNPay Integration**
+   - Cổng thanh toán phổ biến tại Việt Nam
+   - Hỗ trợ nhiều phương thức thanh toán
+   - API documentation đầy đủ
+   - Sandbox environment cho testing
+   - Phí giao dịch cạnh tranh
 
-## Deployment
+### Cấu hình môi trường
+Tạo file `.env` với các biến môi trường sau:
+```env
+# Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_PASSWORD=12345
+DB_DATABASE=ticket-box
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+# VNPay Configuration
+VNPAY_TMN_CODE=0RU4V74D
+VNPAY_HASH_SECRET=E8ADUGP338PHJ8JWK1CIQA20T2WOPX54
+VNPAY_PAYMENT_URL=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+VNPAY_RETURN_URL=http://172.20.10.3:3001/payments/vnpay/callback
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+# Email Configuration
+EMAIL_USER=nguyenvinh1242004@gmail.com
+EMAIL_PASSWORD=zgqyvguuoqoufnri
 
-```bash
-$ npm install -g mau
-$ mau deploy
-```
+### Database Configuration
+Dự án sử dụng TypeORM với chế độ `synchronize: true`, có nghĩa là:
+- Schema database sẽ tự động được cập nhật dựa trên các Entity
+- Không cần chạy migration thủ công
+- Phù hợp cho môi trường development
+- ⚠️ Lưu ý: Nên tắt tính năng này trong môi trường production để tránh mất dữ liệu
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 🚀 API Endpoints
 
-## Resources
+### Authentication
+- `POST /auth/register` - Đăng ký tài khoản
+- `POST /auth/login` - Đăng nhập
+- `POST /auth/refresh` - Làm mới token
 
-Check out a few resources that may come in handy when working with NestJS:
+### Events
+- `GET /events` - Lấy danh sách sự kiện
+- `GET /events/:id` - Chi tiết sự kiện
+- `POST /events` - Tạo sự kiện mới
+- `PUT /events/:id` - Cập nhật sự kiện
+- `DELETE /events/:id` - Xóa sự kiện
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Tickets
+- `GET /tickets` - Lấy danh sách vé
+- `POST /tickets` - Đặt vé
+- `GET /tickets/:id` - Chi tiết vé
+- `PUT /tickets/:id/status` - Cập nhật trạng thái vé
 
-## Support
+### Users
+- `GET /users/profile` - Thông tin người dùng
+- `PUT /users/profile` - Cập nhật thông tin
+- `GET /users/tickets` - Lịch sử đặt vé
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 📚 Tài liệu tham khảo
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- [NestJS Documentation](https://docs.nestjs.com/)
+- [TypeORM Documentation](https://typeorm.io/)
+- [Passport.js Documentation](http://www.passportjs.org/)

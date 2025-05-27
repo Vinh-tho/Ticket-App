@@ -3,16 +3,35 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
 import { Event } from '../../entities/Events';
-import { EventDetailModule } from '../event-detail/event-detail.module'; // <- THÊM
-import { EventDetail } from '../../entities/events-detail.entity'; // <- NẾU dùng trong TypeOrmModule
+import { Ticket } from '../../entities/ticket.entity';
+import { Seat } from '../../entities/Seat';
+import { SeatStatus } from '../../entities/seat-status.entity';
+import { EventDetail } from '../../entities/events-detail.entity';
+import { Gift } from '../../entities/gift.entity';
+import { EventGift } from '../../entities/event-gift.entity';
+import { OrderDetail } from '../../entities/order-detail.entity';
+import { Organizer } from '../../entities/organizer.entity';
+import { Order } from '../../entities/order.entity';
+import { Payment } from '../../entities/Payment';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Event, EventDetail]), // <- thêm EventDetail nếu cần query
-    EventDetailModule, // <- THÊM
+    TypeOrmModule.forFeature([
+      Event,
+      EventDetail,
+      Ticket,
+      Seat,
+      SeatStatus,
+      Gift,
+      EventGift,
+      OrderDetail,
+      Order,
+      Payment,
+      Organizer
+    ])
   ],
-  controllers: [EventsController],
   providers: [EventsService],
-  exports: [EventsService],
+  controllers: [EventsController],
+  exports: [EventsService]
 })
 export class EventsModule {}

@@ -16,7 +16,21 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(req: Request, payload: any) {
-    // Gán userId vào req.user
-    return { userId: payload.sub, email: payload.email };
+    // Đảm bảo userId là số
+    const userId = typeof payload.sub === 'number' ? payload.sub : parseInt(payload.sub, 10);
+    
+    if (isNaN(userId)) {
+      console.error('Invalid userId in token payload:', payload.sub);
+      throw new Error('Invalid userId in token');
+    }
+
+    console.log('JWT Strategy - Validated userId:', userId);
+
+    // Trả về thông tin user từ JWT payload
+    return {
+      userId,
+      email: payload.email,
+      roles: payload.roles
+    };
   }
 }

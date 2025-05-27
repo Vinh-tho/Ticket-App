@@ -1,17 +1,86 @@
 import { View, Text, Image, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { API } from "@/constants/api";
 
-export default function Organizer() {
+interface OrganizerData {
+  id: number;
+  name: string;
+  logo_url: string;
+  legal_representative: string;
+  address: string;
+  hotline: string;
+  email: string;
+  business_license: string;
+}
+
+interface OrganizerProps {
+  organizerId: number | undefined;
+}
+
+export default function Organizer({ organizerId }: OrganizerProps) {
+  const [organizer, setOrganizer] = useState<OrganizerData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (organizerId === undefined) {
+      setError("No organizer information available");
+      setLoading(false);
+      return;
+    }
+
+    const fetchOrganizer = async () => {
+      try {
+        const response = await fetch(API.ORGANIZER.GET_BY_ID(organizerId));
+        if (!response.ok) {
+          throw new Error('Failed to fetch organizer data');
+        }
+        const data = await response.json();
+        setOrganizer(data);
+      } catch (error) {
+        console.error("Error fetching organizer:", error);
+        setError(error instanceof Error ? error.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrganizer();
+  }, [organizerId]);
+
+  if (loading) {
+    return (
+      <View style={styles.wrapper}>
+        <Text style={styles.sectionTitle}>BAN TỔ CHỨC</Text>
+        <Text>Đang tải...</Text>
+      </View>
+    );
+  }
+
+  if (error || !organizer) {
+    return (
+      <View style={styles.wrapper}>
+        <Text style={styles.sectionTitle}>BAN TỔ CHỨC</Text>
+        <Text>Không thể tải thông tin ban tổ chức</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.wrapper}>
       <Text style={styles.sectionTitle}>BAN TỔ CHỨC</Text>
-      <Image source={{ uri: "https://via.placeholder.com/80x80" }} style={styles.organizerLogo} />
-      <Text style={styles.organizerName}>Công ty Cổ phần Orchestars</Text>
+      <Image 
+        source={{ uri: organizer.logo_url }} 
+        style={styles.organizerLogo}
+        defaultSource={require('@/assets/images/icon.png')}
+      />
+      <Text style={styles.organizerName}>{organizer.name}</Text>
       <Text style={styles.organizerDetails}>
-        Đại diện theo pháp luật: Lương Nhí Thị{"\n"}
-        Địa chỉ: 675-677 Đường Điện Biên Phủ, Phường 25, Quận Bình Thạnh, TP.HCM{"\n"}
-        Hotline: (+84) 972 444 023{"\n"}
-        Email: info@orchestars.vn{"\n"}
-        Giấy chứng nhận đăng ký doanh nghiệp số: 0318788336 cấp lần đầu ngày 23 tháng 12 năm 2024 bởi Sở Kế hoạch và Đầu tư TP. Hồ Chí Minh.
+        Đại diện theo pháp luật: {organizer.legal_representative}{"\n"}
+        Địa chỉ: {organizer.address}{"\n"}
+        Hotline: {organizer.hotline}{"\n"}
+        Email: {organizer.email}{"\n"}
+        Giấy chứng nhận đăng ký doanh nghiệp số: {organizer.business_license}
       </Text>
     </View>
   );

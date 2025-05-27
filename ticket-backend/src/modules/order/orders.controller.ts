@@ -25,6 +25,9 @@ export class OrdersController {
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
     try {
+      // Log the received DTO for debugging
+      console.log('Received CreateOrderDto:', JSON.stringify(createOrderDto, null, 2));
+
       const order = await this.ordersService.create(createOrderDto);
       return {
         success: true,
@@ -74,6 +77,14 @@ export class OrdersController {
         id,
         OrderStatus.PAID,
       );
+      // Nếu đơn hàng đã paid thì trả về message phù hợp
+      if (updatedOrder.status === OrderStatus.PAID) {
+        return {
+          success: true,
+          message: 'Đơn hàng đã thanh toán',
+          data: updatedOrder,
+        };
+      }
       return {
         success: true,
         message: 'Cập nhật trạng thái thanh toán thành công',
@@ -83,6 +94,40 @@ export class OrdersController {
       throw new HttpException(
         error.message || 'Lỗi cập nhật trạng thái thanh toán',
         HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Get('sync-seat-status')
+  async syncSeatStatus() {
+    try {
+      const result = await this.ordersService.syncAllSeatStatuses();
+      return {
+        success: true,
+        message: `Đồng bộ thành công: ${result.total} ghế đã được cập nhật (${result.updatedPaid} SOLD, ${result.updatedCancelled} available)`,
+        data: result
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Lỗi khi đồng bộ trạng thái ghế',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  async getOrderById(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const order = await this.ordersService.findOne(id);
+      return {
+        success: true,
+        data: order,
+      };
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Không tìm thấy đơn hàng',
+        HttpStatus.NOT_FOUND,
       );
     }
   }

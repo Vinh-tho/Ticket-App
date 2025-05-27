@@ -90,6 +90,13 @@ export default function EditProfileScreen() {
       Alert.alert("Lỗi", "Tên không được để trống");
       return;
     }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userData.email)) {
+      Alert.alert("Lỗi", "Email không hợp lệ. Vui lòng nhập email đúng định dạng");
+      return;
+    }
     
     setIsSaving(true);
     try {
@@ -98,10 +105,26 @@ export default function EditProfileScreen() {
         token = await SecureStore.getItemAsync("access_token");
       }
       
+      if (!token) {
+        Alert.alert("Lỗi", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+        router.push("/LoginScreen");
+        return;
+      }
+
+      const decoded: any = jwtDecode(token);
+      
+      // Chuẩn bị dữ liệu cập nhật
+      const updateData = {
+        userId: decoded.sub,
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone || null
+      };
+      
       // Gửi dữ liệu cập nhật lên server
-      await axios.put(
+      const response = await axios.put(
         `${API_URL}/users/profile`,
-        userData,
+        updateData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -109,13 +132,20 @@ export default function EditProfileScreen() {
           },
         }
       );
-      
-      Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật", [
-        { text: "OK", onPress: () => router.back() }
-      ]);
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      Alert.alert("Lỗi", "Không thể cập nhật thông tin. Vui lòng thử lại sau.");
+
+      if (response.data) {
+        Alert.alert("Thành công", "Thông tin cá nhân đã được cập nhật", [
+          { text: "OK", onPress: () => router.back() }
+        ]);
+      } else {
+        throw new Error("Không nhận được phản hồi từ server");
+      }
+    } catch (error: any) {
+      console.error("Error updating profile:", error.response?.data || error.message);
+      Alert.alert(
+        "Lỗi", 
+        error.response?.data?.message || "Không thể cập nhật thông tin. Vui lòng thử lại sau."
+      );
     } finally {
       setIsSaving(false);
     }
@@ -165,9 +195,12 @@ export default function EditProfileScreen() {
           
           <Text style={styles.label}>Email</Text>
           <TextInput
-            style={[styles.input, styles.disabledInput]}
+            style={styles.input}
             value={userData.email}
-            editable={false}
+            onChangeText={(text) => setUserData({ ...userData, email: text })}
+            placeholder="Nhập email"
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
           
           <Text style={styles.label}>Số điện thoại</Text>
@@ -279,6 +312,13 @@ const styles = StyleSheet.create({
   },
   disabledInput: {
     backgroundColor: "#f5f5f5",
+    color: "#666",
+  },
+  helperText: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 4,
+    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: "row",

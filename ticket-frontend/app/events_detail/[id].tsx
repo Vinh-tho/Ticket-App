@@ -10,15 +10,27 @@ import TicketInfo from "../EventsDetailScreen/TicketInfo";
 import Organizer from "../EventsDetailScreen/Organizer";
 import { BASE_URL } from "@/constants/config";
 
+// Define interface for Event data to include organizerId
+interface EventData {
+  id: number;
+  eventName: string;
+  mainImageUrl: string;
+  description: string;
+  location: string;
+  detailImageUrl: string;
+  organizerId?: number; // Add organizerId
+  // ... other event properties
+}
+
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
-  const [event, setEvent] = useState(null);
+  const [event, setEvent] = useState<EventData | null>(null); // Use EventData interface
 
   useEffect(() => {
     const fetchEventDetail = async () => {
       try {
         const response = await fetch(`${BASE_URL}/events/${id}`);
-        const data = await response.json();
+        const data: EventData = await response.json(); // Cast data to EventData
         setEvent(data);
       } catch (error) {
         console.error("Error fetching event detail:", error);
@@ -39,7 +51,8 @@ export default function EventDetailScreen() {
     { id: "4", component: <Introduction event={event} /> },
     { id: "5", component: <TermsAndConditions /> },
     { id: "6", component: <TicketInfo event={event} /> },
-    { id: "7", component: <Organizer /> },
+    // Pass organizerId to Organizer component
+    { id: "7", component: <Organizer organizerId={event.organizerId} /> },
   ];
 
   return (

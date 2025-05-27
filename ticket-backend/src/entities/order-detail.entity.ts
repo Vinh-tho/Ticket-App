@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Order } from './order.entity';
 import { Ticket } from './ticket.entity';
+import { Seat } from './Seat';
 
 @Entity('order_detail')
 export class OrderDetail {
@@ -19,6 +20,7 @@ export class OrderDetail {
   @Column('decimal', { precision: 10, scale: 2 })
   unitPrice: number;
 
-  @Column({ nullable: true })
-  seatId: number;
+  @ManyToOne(() => Seat, { nullable: true })
+  @JoinColumn({ name: 'seatId' })
+  seat: Seat;
 }

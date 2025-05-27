@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SeatStatus } from '../../entities/seat-status.entity';
 import { Seat } from '../../entities/Seat';
 import { EventDetail } from '../../entities/events-detail.entity';
+import { TicketsService } from '../ticket/tickets.service';
 
 @Injectable()
 export class SeatStatusService {
   constructor(
     @InjectRepository(SeatStatus)
     private seatStatusRepository: Repository<SeatStatus>,
+    
+    @Inject(forwardRef(() => TicketsService))
+    private ticketsService: TicketsService,
   ) {}
 
   async create(seat: Seat, eventDetail: EventDetail): Promise<SeatStatus> {
@@ -18,7 +22,12 @@ export class SeatStatusService {
       eventDetail,
       status: 'available',
     });
-    return this.seatStatusRepository.save(seatStatus);
+    const savedStatus = await this.seatStatusRepository.save(seatStatus);
+    
+    // Cập nhật trạng thái vé sau khi tạo status mới
+    await this.ticketsService.checkAndUpdateAllTicketsStatus(eventDetail.event.id);
+    
+    return savedStatus;
   }
 
   async findAll(): Promise<SeatStatus[]> {
@@ -30,12 +39,15 @@ export class SeatStatusService {
   async findByEventDetail(eventDetailId: number): Promise<SeatStatus[]> {
     return this.seatStatusRepository.find({
       where: { eventDetail: { id: eventDetailId } },
-      relations: ['seat', 'user'],
+      relations: ['seat', 'user', 'eventDetail', 'eventDetail.event'],
     });
   }
 
   async updateStatus(id: number, status: string, userId?: number, holdUntil?: Date): Promise<SeatStatus> {
-    const seatStatus = await this.seatStatusRepository.findOne({ where: { id } });
+    const seatStatus = await this.seatStatusRepository.findOne({ 
+      where: { id },
+      relations: ['eventDetail', 'eventDetail.event']
+    });
     if (!seatStatus) {
       throw new Error('Seat status not found');
     }
@@ -48,7 +60,14 @@ export class SeatStatusService {
       seatStatus.holdUntil = holdUntil;
     }
 
-    return this.seatStatusRepository.save(seatStatus);
+    const updatedStatus = await this.seatStatusRepository.save(seatStatus);
+    
+    // Cập nhật trạng thái vé sau khi cập nhật trạng thái ghế
+    if (seatStatus.eventDetail && seatStatus.eventDetail.event) {
+      await this.ticketsService.checkAndUpdateAllTicketsStatus(seatStatus.eventDetail.event.id);
+    }
+    
+    return updatedStatus;
   }
 
   async getSeatCountByZone(eventDetailId: number): Promise<{ zone: string; total: number; available: number }[]> {
@@ -85,22 +104,27 @@ export class SeatStatusService {
       relations: ['event'],
     });
     if (!eventDetail) throw new Error('EventDetail not found');
+    
     // Lấy tất cả ghế của event
     const seats = await this.seatStatusRepository.manager.find(Seat, {
       where: { event: { id: eventDetail.event.id } },
+      relations: ['ticket'],
     });
+    
     // Lấy tất cả seat_status của eventDetail này
     const seatStatuses = await this.seatStatusRepository.find({
       where: { eventDetail: { id: eventDetailId } },
       relations: ['seat', 'user'],
     });
+    
     // Map seatId -> seatStatus
     const statusMap = new Map<number, SeatStatus>();
     seatStatuses.forEach((ss) => {
       statusMap.set(ss.seat.id, ss);
     });
+    
     // Trả về danh sách ghế kèm trạng thái
-    return seats.map((seat) => {
+    const result = seats.map((seat) => {
       const statusObj = statusMap.get(seat.id);
       return {
         id: seat.id,
@@ -110,7 +134,18 @@ export class SeatStatusService {
         number: seat.number,
         status: statusObj ? statusObj.status : 'available',
         user: statusObj ? statusObj.user : null,
+        ticketType: seat.ticket ? seat.ticket.type : null,
       };
     });
+    
+    // Cập nhật trạng thái vé sau khi lấy thông tin
+    await this.ticketsService.checkAndUpdateAllTicketsStatus(eventDetail.event.id);
+    
+    return result;
+  }
+
+  // Public method để cập nhật trạng thái vé từ bên ngoài
+  async updateAllTicketsStatus(eventId: number): Promise<void> {
+    return this.ticketsService.checkAndUpdateAllTicketsStatus(eventId);
   }
 } 

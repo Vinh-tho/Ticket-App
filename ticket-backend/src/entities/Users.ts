@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Order } from './order.entity';
 import { Notification } from './Notification';
+import { Role } from './Role';
 
 @Entity('users')
 export class Users {
@@ -22,8 +23,31 @@ export class Users {
   @Column({ nullable: true })
   avatar: string;
 
-  @Column({ default: 'user' })
-  role: string;
+  @Column({ nullable: true })
+  expoPushToken: string;
+
+  @ManyToMany(() => Role, role => role.users)
+  @JoinTable({
+    name: 'user_roles',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'role_id',
+      referencedColumnName: 'id',
+    },
+  })
+  roles: Role[];
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];

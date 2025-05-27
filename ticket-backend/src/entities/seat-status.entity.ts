@@ -15,7 +15,7 @@ export class SeatStatus {
   eventDetail: EventDetail;
 
   @Column({ default: 'available' })
-  status: string; // available, held, booked
+  status: string; // available, held, booked, SOLD
 
   @ManyToOne(() => Users, (user) => user.id, { nullable: true })
   user: Users;

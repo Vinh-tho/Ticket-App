@@ -5,7 +5,7 @@ import { TicketItemProps } from './types';
 import { ticketStyles } from './styles';
 import { getStatusColor, formatStatus } from './utils';
 
-export const TicketItem: React.FC<TicketItemProps> = ({ item, onPress }) => {
+export default function TicketItem({ item, onPress }: TicketItemProps) {
   const statusColor = getStatusColor(item.status);
   const formattedStatus = formatStatus(item.status);
 
@@ -68,4 +68,4 @@ export const TicketItem: React.FC<TicketItemProps> = ({ item, onPress }) => {
       </View>
     </TouchableOpacity>
   );
-}; 
+} 

@@ -14,8 +14,14 @@ interface Event {
   eventDetails: {
     detailImageUrl: string;
     startTime: string;
-    price: number;
     category?: string;
+  }[];
+  tickets: {
+    id: number;
+    type: string;
+    price: number;
+    quantity: number;
+    status: string;
   }[];
 }
 
@@ -73,9 +79,29 @@ export default function LiveMusicEvents() {
                 year: "numeric"
               })
             : "Chưa có ngày";
-          const formattedPrice = firstDetail?.price 
-            ? `${firstDetail.price.toLocaleString('vi-VN')} đ`
+
+          // Tìm giá vé thấp nhất từ mảng tickets
+          let minPrice = Number.MAX_VALUE;
+          
+          // Duyệt qua tất cả các vé để tìm giá thấp nhất
+          if (item.tickets && item.tickets.length > 0) {
+            item.tickets.forEach(ticket => {
+              // Chỉ xét các vé còn available và có giá > 0
+              if (ticket.status === 'available' && ticket.price > 0 && ticket.price < minPrice) {
+                minPrice = parseFloat(ticket.price.toString());
+              }
+            });
+          }
+
+          // Nếu không tìm thấy vé nào có giá > 0, đặt minPrice = 0
+          if (minPrice === Number.MAX_VALUE) {
+            minPrice = 0;
+          }
+
+          const formattedPrice = minPrice > 0
+            ? `${minPrice.toLocaleString('vi-VN')}đ`
             : "Miễn phí";
+
           return (
             <TouchableOpacity
               style={styles.eventContainer}

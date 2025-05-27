@@ -68,7 +68,14 @@ export default function Header() {
       try {
         const response = await fetch(`${BASE_URL}/events`);
         const data = await response.json();
-        setEvents(data);
+        
+        // Xáo trộn mảng sự kiện
+        const shuffledEvents = [...data].sort(() => Math.random() - 0.5);
+        
+        // Lấy tối đa 3 sự kiện đầu tiên sau khi xáo trộn
+        const randomEvents = shuffledEvents.slice(0, 3);
+        
+        setEvents(randomEvents);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu sự kiện:", error);
       }

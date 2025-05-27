@@ -22,7 +22,13 @@ interface Event {
   eventDetails: {
     detailImageUrl: string;
     startTime: string;
+  }[];
+  tickets: {
+    id: number;
+    type: string;
     price: number;
+    quantity: number;
+    status: string;
   }[];
 }
 
@@ -82,8 +88,31 @@ export default function Recommendation() {
               })
             : "Chưa có ngày";
           
-          const formattedPrice = firstDetail?.price 
-            ? `${firstDetail.price.toLocaleString('vi-VN')} đ`
+          // Tìm giá vé thấp nhất từ mảng tickets (không tính vé miễn phí)
+          let minPrice = Number.MAX_VALUE;
+          
+          // Duyệt qua tất cả các vé để tìm giá thấp nhất
+          if (item.tickets && item.tickets.length > 0) {
+            item.tickets.forEach(ticket => {
+              // Chỉ xét các vé còn available và có giá > 0
+              if (ticket.status === 'available' && ticket.price > 0 && ticket.price < minPrice) {
+                minPrice = parseFloat(ticket.price.toString());
+              }
+            });
+          }
+
+          // Nếu không tìm thấy vé nào có giá > 0, đặt minPrice = 0
+          if (minPrice === Number.MAX_VALUE) {
+            minPrice = 0;
+          }
+
+          // Hàm format số tiền thành dạng đầy đủ với dấu chấm phân cách
+          const formatCurrency = (amount: number) => {
+            return amount.toLocaleString('vi-VN');
+          };
+
+          const formattedPrice = minPrice > 0
+            ? `Từ ${formatCurrency(minPrice)}đ`
             : "Miễn phí";
 
           return (
@@ -98,7 +127,7 @@ export default function Recommendation() {
               <Text style={styles.recommendedTitle} numberOfLines={2}>
                 {item.eventName}
               </Text>
-              <Text style={styles.recommendedPrice}>Từ {formattedPrice}</Text>
+              <Text style={styles.recommendedPrice}>{formattedPrice}</Text>
               <View style={styles.recommendedDate}>
                 <Ionicons name="calendar-outline" size={14} color="gray" />
                 <Text style={styles.recommendedDateText}>{formattedDate}</Text>

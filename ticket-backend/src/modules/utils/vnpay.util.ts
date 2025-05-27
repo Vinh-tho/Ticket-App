@@ -32,6 +32,7 @@ export function generateHMAC(
     .join('&');
   // Log signData để debug lỗi hash
   console.log('[VNPay] signData for HMAC:', signData);
+  console.log('[VNPay] Using Hash Secret:', secret);
   const hmac = crypto
     .createHmac('sha512', secret)
     .update(Buffer.from(signData, 'utf-8'))
