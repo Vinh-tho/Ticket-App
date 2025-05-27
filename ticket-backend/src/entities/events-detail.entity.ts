@@ -28,7 +28,7 @@ export class EventDetail {
   @Column()
   location: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   description: string;
 
   @Column({ default: 'active' })

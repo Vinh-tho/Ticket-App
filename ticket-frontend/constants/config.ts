@@ -1,3 +1,3 @@
 // src/config.ts
 
-export const BASE_URL = "http://172.20.10.3:3001";
+export const BASE_URL = "http://192.168.1.4:3001";

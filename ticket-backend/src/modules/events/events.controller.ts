@@ -61,6 +61,16 @@ export class EventsController {
     return this.eventsService.update(+id, updateEventDto, req.user.userId);
   }
 
+  // Trả trạng thái về tự động
+  @Patch(':id/auto-status')
+  @UseGuards(JwtAuthGuard)
+  async resetStatusToAuto(@Param('id') id: string, @Request() req) {
+    if (!req.user || !req.user.userId) {
+      throw new NotFoundException('User not found');
+    }
+    return this.eventsService.resetStatusToAuto(+id, req.user.userId);
+  }
+
   // Xóa sự kiện và toàn bộ dữ liệu liên quan
   @Delete(':id')
   @UseGuards(JwtAuthGuard)

@@ -195,6 +195,12 @@ class EventService {
       throw new Error('Không thể lấy thống kê sự kiện của bạn');
     }
   }
+
+  // Trả trạng thái về tự động
+  async resetEventStatusToAuto(id: number): Promise<Event> {
+    const response = await api.patch<Event>(`/events/${id}/auto-status`);
+    return response.data;
+  }
 }
 
 export default EventService.getInstance(); 

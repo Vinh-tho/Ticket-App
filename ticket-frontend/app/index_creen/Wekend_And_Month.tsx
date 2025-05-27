@@ -33,6 +33,34 @@ interface Event {
 
 const { width, height } = Dimensions.get("window");
 
+const getStartAndEndOfWeek = (date: Date) => {
+  const now = new Date(date);
+  const startOfWeek = new Date(now);
+  const endOfWeek = new Date(now);
+
+  // Lấy ngày đầu tuần (thứ 2)
+  const dayOfWeek = now.getDay(); // 0 = CN, 1 = T2, ..., 6 = T7
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Nếu là CN thì lùi 6 ngày, không thì tính số ngày cần lùi để về T2
+  startOfWeek.setDate(now.getDate() + diff);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  // Ngày cuối tuần = ngày đầu tuần + 6 ngày
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  endOfWeek.setHours(23, 59, 59, 999);
+
+  return { startOfWeek, endOfWeek };
+};
+
+const getStartAndEndOfMonth = (date: Date) => {
+  const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  endOfMonth.setHours(23, 59, 59, 999);
+
+  return { startOfMonth, endOfMonth };
+};
+
 export default function Wekend_And_Month() {
   const [selectedTab, setSelectedTab] = useState("weekend");
   const [events, setEvents] = useState<Event[]>([]);
@@ -70,49 +98,43 @@ export default function Wekend_And_Month() {
 
   const getFilteredEvents = () => {
     const now = new Date();
-    
-    // Lấy ngày đầu tuần (thứ 2) và cuối tuần (chủ nhật)
-    const startOfWeek = new Date(now);
-    startOfWeek.setHours(0, 0, 0, 0);
-    // Nếu hôm nay là chủ nhật (0), lấy từ thứ 2 tuần trước
-    const currentDay = now.getDay();
-    const diff = currentDay === 0 ? -6 : 1 - currentDay; // -6 nếu là chủ nhật, không thì lùi về thứ 2
-    startOfWeek.setDate(now.getDate() + diff);
+    let startDate: Date;
+    let endDate: Date;
 
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
+    if (selectedTab === "weekend") {
+      const { startOfWeek, endOfWeek } = getStartAndEndOfWeek(now);
+      startDate = startOfWeek;
+      endDate = endOfWeek;
+    } else {
+      const { startOfMonth, endOfMonth } = getStartAndEndOfMonth(now);
+      startDate = startOfMonth;
+      endDate = endOfMonth;
+    }
 
-    // Lấy ngày đầu tháng và cuối tháng
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    endOfMonth.setHours(23, 59, 59, 999);
-
-    // Debug thông tin
-    console.log('Current time:', now.toLocaleString('vi-VN'));
-    console.log('Week range:', startOfWeek.toLocaleString('vi-VN'), 'to', endOfWeek.toLocaleString('vi-VN'));
-    console.log('Month range:', startOfMonth.toLocaleString('vi-VN'), 'to', endOfMonth.toLocaleString('vi-VN'));
+    // Log thông tin thời gian để debug
+    console.log('Filtering events for:', selectedTab);
+    console.log('Start date:', startDate.toLocaleString('vi-VN'));
+    console.log('End date:', endDate.toLocaleString('vi-VN'));
 
     return events.filter(event => {
-      // Lấy thời gian sự kiện từ eventDetails
       const eventStartTime = event.eventDetails?.[0]?.startTime;
       if (!eventStartTime) return false;
 
       const eventDate = new Date(eventStartTime);
       
-      // Debug thông tin sự kiện
-      console.log('Event:', event.eventName, 'Date:', eventDate.toLocaleString('vi-VN'));
+      // Log thông tin sự kiện để debug
+      console.log('Event:', event.eventName);
+      console.log('Event date:', eventDate.toLocaleString('vi-VN'));
+      console.log('Is in range:', eventDate >= startDate && eventDate <= endDate);
 
-      if (selectedTab === "weekend") {
-        // Sự kiện trong tuần này
-        return eventDate >= startOfWeek && eventDate <= endOfWeek;
-      } else {
-        // Sự kiện trong tháng này
-        return eventDate >= startOfMonth && eventDate <= endOfMonth;
-      }
+      return eventDate >= startDate && eventDate <= endDate;
     });
   };
+
+  // Thêm useEffect để log khi tab thay đổi
+  useEffect(() => {
+    console.log('Selected tab changed to:', selectedTab);
+  }, [selectedTab]);
 
   if (loading) {
     return (

@@ -5,6 +5,21 @@ import { PlusIcon, PencilIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons
 import Link from "next/link";
 import EventService, { Event } from "@/services/event.service";
 
+const extractCityName = (address: string) => {
+  // Tìm "Thành Phố" hoặc "Tỉnh" trong địa chỉ
+  const cityMatch = address.match(/(Thành Phố|Tỉnh)\s+([^,]+)/i);
+  if (cityMatch) {
+    // Chỉ lấy tên thành phố (không lấy "Thành Phố" hoặc "Tỉnh")
+    return cityMatch[2].trim();
+  }
+  
+  // Nếu không tìm thấy, tách theo dấu phẩy và lấy phần cuối
+  const parts = address.split(',');
+  const lastPart = parts[parts.length - 1].trim();
+  // Loại bỏ "Thành Phố" hoặc "Tỉnh" nếu có
+  return lastPart.replace(/(Thành Phố|Tỉnh)\s+/i, '').trim();
+};
+
 export default function MyEventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [search, setSearch] = useState("");
@@ -31,7 +46,7 @@ export default function MyEventsPage() {
 
   const filteredEvents = events.filter(e =>
     (e.eventName?.toLowerCase() ?? '').includes(search.toLowerCase()) ||
-    (e.venue?.toLowerCase() ?? '').includes(search.toLowerCase())
+    (e.eventDetails?.[0]?.location?.toLowerCase() ?? '').includes(search.toLowerCase())
   );
 
   const handleDelete = async (id: number) => {
@@ -98,7 +113,11 @@ export default function MyEventsPage() {
                   <tr key={event.id} className="hover:bg-white/10 transition-all duration-200">
                     <td className="px-6 py-4 whitespace-nowrap text-base text-white font-semibold">{event.id}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-white">{event.eventName}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-white">{event.venue}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-white">
+                      {event.eventDetails?.[0]?.location 
+                        ? extractCityName(event.eventDetails[0].location)
+                        : 'N/A'}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-white">
                       {event.eventDetails && event.eventDetails[0]?.startTime 
                         ? new Date(event.eventDetails[0].startTime).toLocaleDateString() 

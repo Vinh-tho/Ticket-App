@@ -20,8 +20,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 const { width, height } = Dimensions.get("window");
 
 const DESTINATION_IMAGES: Record<string, any> = {
-  "Hà Nội": require("../../assets/images/avatar.png"),
-  "Tp. Hồ Chí Minh": require("../../assets/images/facebook.png"),
+  "Hà Nội": require("../../assets/city/HaNoi.png"),
+  "Hồ Chí Minh": require("../../assets/city/HoChiMinh.png"),
+  "Đà Nẵng": require("../../assets/city/DaNang.png"),
+  "Hải Phòng": require("../../assets/city/HaiPhong.png"),
+  "Cần Thơ": require("../../assets/city/CanTho.png"),
+  "Đà Lạt": require("../../assets/city/DaLat.png"),
+  "Nha Trang": require("../../assets/city/NhaTrang.png"),
+  "Vũng Tàu": require("../../assets/city/VungTau.png"),
   // Thêm các địa chỉ khác nếu muốn
 };
 

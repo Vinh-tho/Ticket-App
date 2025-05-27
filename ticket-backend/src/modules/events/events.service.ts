@@ -97,8 +97,7 @@ export class EventsService {
       total: events.length,
       upcoming,
       ongoing,
-      completed,
-      cancelled: events.filter(event => event.status === 'CANCELLED').length
+      completed
     };
   }
 
@@ -417,7 +416,14 @@ export class EventsService {
       // Update basic event fields
       if (updateEventDto.eventName) event.eventName = updateEventDto.eventName;
       if (updateEventDto.mainImageUrl) event.mainImageUrl = updateEventDto.mainImageUrl;
-      if (updateEventDto.status) event.status = updateEventDto.status;
+      if (
+        updateEventDto.status === 'upcoming' ||
+        updateEventDto.status === 'active' ||
+        updateEventDto.status === 'completed'
+      ) {
+        event.status = updateEventDto.status;
+        event.statusByAdmin = true;
+      }
 
       // Save event first to ensure we have an ID
       const savedEvent = await this.eventRepository.save(event);
@@ -622,6 +628,21 @@ export class EventsService {
 
     // Finally delete the event
     await this.eventRepository.remove(event);
+  }
+
+  async resetStatusToAuto(id: number, userId: number): Promise<Event> {
+    const event = await this.eventRepository.findOne({
+      where: { id, createdBy: { id: userId } },
+      relations: ['eventDetails', 'tickets', 'eventGifts', 'organizer', 'tickets.seats', 'tickets.seats.orderDetails'],
+    });
+
+    if (!event) {
+      throw new NotFoundException(`Event with ID ${id} not found or you don't have permission`);
+    }
+
+    event.statusByAdmin = false;
+    await this.eventRepository.save(event);
+    return this.findOne(event.id);
   }
 }
 

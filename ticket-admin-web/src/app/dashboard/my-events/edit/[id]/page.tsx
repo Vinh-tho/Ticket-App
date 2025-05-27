@@ -756,6 +756,25 @@ export default function EditEventPage() {
           </div>
         </div>
 
+        {/* Nút trả về tự động */}
+        <button
+          type="button"
+          className="inline-flex items-center px-6 py-3 shadow-lg text-base font-semibold rounded-2xl text-white bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400"
+          onClick={async () => {
+            setSaving(true);
+            try {
+              await EventService.resetEventStatusToAuto(event.id);
+              window.location.reload();
+            } catch (err) {
+              setError("Không thể trả về trạng thái tự động.");
+            } finally {
+              setSaving(false);
+            }
+          }}
+        >
+          Trả về tự động
+        </button>
+
         {/* Action Buttons */}
         <div className="flex gap-4">
           <button

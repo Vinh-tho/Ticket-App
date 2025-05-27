@@ -22,6 +22,9 @@ export class Event {
   @Column({ default: 'upcoming' })
   status: 'upcoming' | 'active' | 'completed';
 
+  @Column({ default: false })
+  statusByAdmin: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -50,6 +53,7 @@ export class Event {
   @AfterLoad()
   updateStatus() {
     if (!this.eventDetails || this.eventDetails.length === 0) return;
+    if (this.statusByAdmin) return;
 
     const now = new Date();
     const earliestDetail = this.eventDetails.reduce((earliest, detail) => 
