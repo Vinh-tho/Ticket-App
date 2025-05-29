@@ -22,7 +22,6 @@ Ticket App là một ứng dụng di động hiện đại được phát triể
 - **TypeScript**: Đảm bảo type-safety và dễ bảo trì code
 - **Expo Router**: Routing mạnh mẽ với file-based routing
 - **Expo Notifications**: Tích hợp thông báo đẩy
-- **React Navigation**: Điều hướng mượt mà trong ứng dụng
 
 ### Lý do lựa chọn công nghệ
 
