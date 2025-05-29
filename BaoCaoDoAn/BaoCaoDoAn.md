@@ -1,5 +1,5 @@
 # BÁO CÁO ĐỒ ÁN
-# HỆ THỐNG ĐẶT VÉ SỰ KIỆN
+# HỆ THỐNG ĐẶT VÉ SỰ KIỆN ÂM NHẠC
 
 # MỤC LỤC
 - [1. TÓM TẮT NỘI DUNG ĐỒ ÁN](#1-tóm-tắt-nội-dung-đồ-án)
@@ -16,7 +16,7 @@
 
 
 ## 1. TÓM TẮT NỘI DUNG ĐỒ ÁN
-Hệ thống Đặt Vé Sự Kiện là một ứng dụng web/mobile được phát triển nhằm cung cấp giải pháp toàn diện cho việc quản lý và đặt vé các sự kiện ca nhạc, giải trí. Hệ thống cho phép người dùng dễ dàng tìm kiếm, đặt vé và thanh toán trực tuyến, đồng thời cung cấp công cụ quản lý hiệu quả cho đơn vị tổ chức sự kiện. Với tính năng đặt vé realtime và tích hợp thanh toán qua VNPay, hệ thống đảm bảo trải nghiệm mua vé an toàn và thuận tiện cho người dùng.
+Hệ thống Đặt Vé Sự Kiện Âm Nhạc là một ứng dụng web/mobile được phát triển nhằm cung cấp giải pháp toàn diện cho việc quản lý và đặt vé các sự kiện ca nhạc, giải trí. Hệ thống cho phép người dùng dễ dàng tìm kiếm, đặt vé và thanh toán trực tuyến, đồng thời cung cấp công cụ quản lý hiệu quả cho đơn vị tổ chức sự kiện. Với tính năng đặt vé realtime và tích hợp thanh toán qua VNPay, hệ thống đảm bảo trải nghiệm mua vé an toàn và thuận tiện cho người dùng.
 
 ## 2. KHẢO SÁT VÀ PHÂN TÍCH YÊU CẦU
 
@@ -166,28 +166,34 @@ Cơ sở dữ liệu bao gồm các bảng chính:
    - createdBy: int (FK)
    - organizerId: int (FK)
    - status: varchar(255)
-   - createdAt: datetime
+   - createdAt: datetime(6)
+   - statusByAdmin: tinyint
 
 3. **tickets**
    - id: int (PK)
    - type: varchar(255)
    - price: decimal(10,2)
    - quantity: int
+   - status: varchar(255)
    - eventId: int (FK)
 
 4. **orders**
    - id: int (PK)
    - orderDate: datetime
+   - updateAt: datetime
    - totalAmount: decimal(10,2)
    - status: varchar(255)
    - userId: int (FK)
    - eventDetailId: int (FK)
+   - giftID: int
+   - reminderSent: enum ('Chưa nhắc', 'Đã Nhắc')
 
 5. **payments**
    - id: int (PK)
    - amount: decimal(10,2)
    - paymentMethod: varchar(255)
    - paymentStatus: varchar(255)
+   - paymentDate: Datetime
    - orderId: int (FK)
 
 **Ghi chú quan hệ giữa các bảng:**
@@ -227,6 +233,7 @@ Hệ thống được thiết kế theo kiến trúc microservices với các th
 
 3. **Database Layer:**
    - MySQL Database
+   - HeidiSQL
 
 **Giao tiếp giữa các thành phần:**
 - **Mobile App (React Native)** và **Admin Web (Next.js)** giao tiếp với **Backend API (NestJS)** thông qua **HTTP RESTful API**.
@@ -259,7 +266,7 @@ Hệ thống được thiết kế theo kiến trúc microservices với các th
   2. Thực hiện các thao tác CRUD sự kiện, vé, người dùng qua API.
   3. Xem báo cáo, thống kê doanh thu, số lượng vé bán.
 - **Luồng upload ảnh:**
-  1. Người dùng/Admin upload ảnh sự kiện/vé.
+  1. Admin upload ảnh sự kiện/vé.
   2. Backend nhận file, upload lên Cloudinary, lưu link ảnh vào database.
 
 **Bảo mật & hiệu năng:**
