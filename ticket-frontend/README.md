@@ -1,4 +1,4 @@
-# Ticket App - Ứng dụng Đặt vé Sự kiện
+# Ticket App - Ứng dụng Đặt vé Sự Kiện Âm Nhạc
 
 ## Giới thiệu
 
