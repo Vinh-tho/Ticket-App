@@ -1,15 +1,15 @@
-# Hệ Thống Đặt Vé Sự Kiện (Event Ticket System)
+# Hệ Thống Đặt Vé Sự Kiện Âm nhạc (Event Ticket System)
 
 
 ## Tổng Quan
-Hệ thống Đặt Vé là một ứng dụng web được thiết kế để quản lý và đặt vé cho các sự kiện ca nhạc, giải trí. Hệ thống bao gồm 3 phần chính:
+Hệ Thống Đặt Vé Sự Kiện Âm nhạc là một ứng dụng web được thiết kế để quản lý và đặt vé cho các sự kiện ca nhạc, giải trí. Hệ thống bao gồm 3 phần chính:
 - **Backend (ticket-backend)**: API server xử lý logic nghiệp vụ
 - **Frontend (ticket-frontend)**: Giao diện người dùng cho khách hàng đặt vé
 - **Admin Web (ticket-admin-web)**: Giao diện quản trị cho nhân viên
 
 
 ## Yêu Cầu Hệ Thống
-Chúng ta sẽ tập trung vào các yêu cầu sau đây khi thiết kế Hệ thống Đặt Vé Sự Kiện:
+Chúng ta sẽ tập trung vào các yêu cầu sau đây khi thiết kế Hệ Thống Đặt Vé Sự Kiện Âm nhạc:
 
 1. Khách hàng có thể tìm kiếm sự kiện theo tên, địa điểm, ngày tổ chức, và thể loại sự kiện.
 
@@ -28,7 +28,7 @@ Chúng ta sẽ tập trung vào các yêu cầu sau đây khi thiết kế Hệ 
    - Danh sách người mua vé
    - Trạng thái thanh toán của mỗi đơn hàng
 
-5. Mỗi người dùng chỉ được phép đặt vé cho mỗi sự kiện.
+5. Mỗi người sẽ được phép đặt vé cho mỗi sự kiện.
 
 6. Thời gian giữ chỗ tạm thời khi đặt vé là 15 phút, sau thời gian này nếu không thanh toán, hệ thống sẽ tự động hủy đơn.
 
@@ -87,20 +87,20 @@ Chúng ta sẽ tập trung vào các yêu cầu sau đây khi thiết kế Hệ 
 ### Yêu Cầu Hệ Thống
 - Node.js >= 14.x
 - MySQL >= 8.0
-- Redis (cho session management)
+
 
 ### Backend
 ```bash
 cd ticket-backend
 npm install
-npm run dev
+npm run start:dev
 ```
 
 ### Frontend
 ```bash
 cd ticket-frontend
 npm install
-npm run dev
+npm start hoặc npx expo start
 ```
 
 ### Admin Web
@@ -119,7 +119,7 @@ ticket-app/
 ```
 
 ## Lưu Ý
-- Các hình ảnh (ERD, Use Case, System Architecture) cần được thêm vào thư mục `docs/images/`
+- Các hình ảnh (ERD, Use Case, System Architecture) cần được thêm vào thư mục `./BaoCaoDoAn/assets`
 - Cập nhật các biến môi trường trong file `.env` của mỗi service
 - Đảm bảo các port không bị conflict khi chạy đồng thời các service
 
